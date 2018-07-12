@@ -1,4 +1,4 @@
-package kong
+package api
 
 import (
 	"bytes"
@@ -13,6 +13,10 @@ const (
 	contentType     string = "Content-Type"
 	applicationJSON string = "application/json; charset=utf-8"
 )
+
+var client = http.Client{
+	Timeout: time.Duration(5 * time.Second),
+}
 
 type Service struct {
 	ConnectTimeout int     `json:"connect_timeout,omitempty"`
@@ -131,9 +135,6 @@ func httpRequest(method, url string, payload []byte, response interface{}) (*htt
 	}
 	req.Header.Set(contentType, applicationJSON)
 	req.Header.Set("User-Agent", "kongfig")
-	client := http.Client{
-		Timeout: time.Duration(5 * time.Second),
-	}
 	res, err := client.Do(req)
 	defer res.Body.Close()
 

@@ -5,22 +5,40 @@ import (
 	"log"
 	"os"
 
-	"github.com/pagerinc/kongfig/kong"
+	"github.com/pagerinc/kongfig/api"
+	"github.com/spf13/cobra"
 )
 
-func Apply() {
-	file, err := os.Open("config.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
+var file string
 
-	c := kong.Config{}
-	json.NewDecoder(file).Decode(&c)
+func init() {
+	const (
+		defaultConfig = "config.json"
+		usage         = "Filename that contains the configuration to apply"
+	)
 
-	for _, s := range c.Services {
-		c.UpdateService(s)
-		c.CreateRoutes(s)
-		c.GetRoutes(s)
-	}
+	kongfig.Flags().StringVarP(&file, "file", "f", defaultConfig, usage)
+	kongfig.AddCommand(applyCmd)
+}
+
+var applyCmd = &cobra.Command{
+	Use:   "apply",
+	Short: "Apply a configuration to a Kong instance",
+	Long:  `Use apply to restore your settings into an existing Kong instance.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		file, err := os.Open(file)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		c := api.Config{}
+		json.NewDecoder(file).Decode(&c)
+
+		for _, s := range c.Services {
+			c.UpdateService(s)
+			c.CreateRoutes(s)
+			c.GetRoutes(s)
+		}
+	},
 }
