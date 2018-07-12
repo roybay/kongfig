@@ -1,23 +1,27 @@
 package cmd
 
 import (
-	"encoding/json"
-	"log"
 	"os"
 
 	"github.com/pagerinc/kongfig/api"
 	"github.com/spf13/cobra"
 )
 
-var fileVar string
+var (
+	fileVar   string
+	dryRunVar bool
+)
 
 func init() {
 	const (
 		defaultConfig = "config.json"
-		usage         = "Filename that contains the configuration to apply"
+		configUsage   = "Filename that contains the configuration to apply"
+		defaultDryRun = false
+		dryRunUsage   = "simulate an install"
 	)
 
-	kongfig.Flags().StringVarP(&fileVar, "file", "f", defaultConfig, usage)
+	applyCmd.Flags().StringVarP(&fileVar, "file", "f", defaultConfig, configUsage)
+	applyCmd.Flags().BoolVar(&dryRunVar, "dry-run", defaultDryRun, dryRunUsage)
 	kongfig.AddCommand(applyCmd)
 }
 
@@ -25,20 +29,21 @@ var applyCmd = &cobra.Command{
 	Use:   "apply",
 	Short: "Apply a configuration to a Kong instance",
 	Long:  `Use apply to restore your settings into an existing Kong instance.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		file, err := os.Open(fileVar)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		defer file.Close()
 
-		c := api.Config{}
-		json.NewDecoder(file).Decode(&c)
+		c := api.NewConfig(file)
 
 		for _, s := range c.Services {
 			c.UpdateService(s)
 			c.CreateRoutes(s)
 			c.GetRoutes(s)
 		}
+
+		return nil
 	},
 }

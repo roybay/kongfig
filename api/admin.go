@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -174,4 +175,10 @@ func (c *Config) UpdateService(s Service) (string, error) {
 	log.Printf("[services] PUT - %d", res.StatusCode)
 
 	return "", nil
+}
+
+func NewConfig(f *os.File) *Config {
+	c := Config{}
+	json.NewDecoder(f).Decode(&c)
+	return &c
 }
