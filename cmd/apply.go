@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var file string
+var fileVar string
 
 func init() {
 	const (
@@ -17,7 +17,7 @@ func init() {
 		usage         = "Filename that contains the configuration to apply"
 	)
 
-	kongfig.Flags().StringVarP(&file, "file", "f", defaultConfig, usage)
+	kongfig.Flags().StringVarP(&fileVar, "file", "f", defaultConfig, usage)
 	kongfig.AddCommand(applyCmd)
 }
 
@@ -26,7 +26,7 @@ var applyCmd = &cobra.Command{
 	Short: "Apply a configuration to a Kong instance",
 	Long:  `Use apply to restore your settings into an existing Kong instance.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		file, err := os.Open(file)
+		file, err := os.Open(fileVar)
 		if err != nil {
 			log.Fatal(err)
 		}
