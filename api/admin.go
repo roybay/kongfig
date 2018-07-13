@@ -21,10 +21,10 @@ type Client struct {
 	BaseURL string
 }
 
-func NewClient(filePath string) *Client {
+func NewClient(filePath string) (*Client, error) {
 	config, err := configFromPath(filePath)
 	if err != nil {
-		// FIXME bail
+		return nil, err
 	}
 
 	c := &Client{
@@ -33,7 +33,7 @@ func NewClient(filePath string) *Client {
 		BaseURL: adminURL(config),
 	}
 
-	return c
+	return c, nil
 }
 
 func configFromPath(path string) (*Config, error) {

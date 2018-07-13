@@ -28,7 +28,10 @@ var applyCmd = &cobra.Command{
 	Short: "Apply a configuration to a Kong instance",
 	Long:  `Use apply to restore your settings into an existing Kong instance.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := api.NewClient(fileVar)
+		client, err := api.NewClient(fileVar)
+		if err != nil {
+			return err
+		}
 		client.UpdateAllRecursively()
 
 		return nil
