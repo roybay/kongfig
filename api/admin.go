@@ -21,18 +21,6 @@ type Client struct {
 	BaseURL string
 }
 
-func configFromPath(path string) (*Config, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	c := Config{}
-	json.NewDecoder(file).Decode(&c)
-	return &c, nil
-}
-
 func NewClient(filePath string) *Client {
 	config, err := configFromPath(filePath)
 	if err != nil {
@@ -46,6 +34,18 @@ func NewClient(filePath string) *Client {
 	}
 
 	return c
+}
+
+func configFromPath(path string) (*Config, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	c := Config{}
+	json.NewDecoder(file).Decode(&c)
+	return &c, nil
 }
 
 func adminURL(c *Config) string {
