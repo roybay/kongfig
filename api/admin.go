@@ -56,17 +56,33 @@ func adminURL(c *Config) string {
 	return fmt.Sprintf("%s://%s", protocol, c.Host)
 }
 
-func (c *Client) GetRoutes(s Service) ([]Route, error) {
-	r := Routes{}
-	res, err := c.httpGetRequest(fmt.Sprintf("%s/services/%s/routes", c.BaseURL, s.Name), &r)
+func (c *Client) UpdateAllRecursively() {
+	for _, s := range c.config.Services {
+		// FIXME err check
+		c.UpdateService(s)
+		c.DeleteRoutes(s)
+		c.CreateRoutes(s)
+	}
+}
+
+func (c *Client) UpdateService(s Service) error {
+	url := fmt.Sprintf("%s/services/%s", c.BaseURL, s.Name)
+	s.Routes = nil
+	payload, err := json.Marshal(s)
 	if err != nil {
-		return r.Data, err
+		return err
+	}
+	res, err := c.httpPutRequest(url, payload)
+	if err != nil {
+		return err
 	}
 	if res.StatusCode != http.StatusOK {
-		return r.Data, fmt.Errorf("bad response")
+		return fmt.Errorf("bad response")
 	}
 
-	return r.Data, nil
+	log.Printf("service [%s] created (%d)", s.Name, res.StatusCode)
+
+	return nil
 }
 
 func (c *Client) DeleteRoutes(s Service) error {
@@ -101,53 +117,37 @@ func (c *Client) DeleteRoute(r Route) error {
 	return nil
 }
 
-func (c *Client) CreateRoutes(s Service) (string, error) {
+func (c *Client) GetRoutes(s Service) ([]Route, error) {
+	r := Routes{}
+	res, err := c.httpGetRequest(fmt.Sprintf("%s/services/%s/routes", c.BaseURL, s.Name), &r)
+	if err != nil {
+		return r.Data, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return r.Data, fmt.Errorf("bad response")
+	}
+
+	return r.Data, nil
+}
+
+func (c *Client) CreateRoutes(s Service) error {
 	url := fmt.Sprintf("%s/services/%s/routes", c.BaseURL, s.Name)
 
 	for _, r := range s.Routes {
 		payload, err := json.Marshal(r)
 		if err != nil {
-			return "", err
+			return err
 		}
 		res, err := c.httpPostRequest(url, payload)
 		if err != nil {
-			return "", err
+			return err
 		}
 		if res.StatusCode != http.StatusCreated {
-			return "", fmt.Errorf("bad response")
+			return fmt.Errorf("bad response")
 		}
 		// FIXME no route id - 204
 		log.Printf("route [%s] created (%d)", s.Name, res.StatusCode)
 	}
-
-	return "", nil
-}
-
-func (c *Client) UpdateAllRecursively() {
-	for _, s := range c.config.Services {
-		// FIXME err check
-		c.UpdateService(s)
-		c.DeleteRoutes(s)
-		c.CreateRoutes(s)
-	}
-}
-
-func (c *Client) UpdateService(s Service) error {
-	url := fmt.Sprintf("%s/services/%s", c.BaseURL, s.Name)
-	s.Routes = nil
-	payload, err := json.Marshal(s)
-	if err != nil {
-		return err
-	}
-	res, err := c.httpPutRequest(url, payload)
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad response")
-	}
-
-	log.Printf("service [%s] created (%d)", s.Name, res.StatusCode)
 
 	return nil
 }
