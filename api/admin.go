@@ -72,12 +72,12 @@ func (c *Client) UpdateService(s Service) error {
 	if err != nil {
 		return err
 	}
-	res, err := c.httpPutRequest(url, payload)
+	res, err := c.httpRequest(http.MethodPut, url, payload, nil)
 	if err != nil {
 		return err
 	}
 	if res.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad response")
+		return fmt.Errorf("error updating service. Bad response from the API [%d]", res.StatusCode)
 	}
 
 	log.Printf("service [%s] created (%d)", s.Name, res.StatusCode)
@@ -91,25 +91,26 @@ func (c *Client) DeleteRoutes(s Service) error {
 		return err
 	}
 
-	log.Printf("GET /routes - [%d]: %v", len(routes), routes)
+	log.Printf("service [%s] - [%d] routes", s.Name, len(routes))
 
 	for _, r := range routes {
-		// FIXME err check
-		c.DeleteRoute(r)
+		if err := c.DeleteRoute(r); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (c *Client) DeleteRoute(r Route) error {
-	res, err := c.httpDeleteRequest(fmt.Sprintf("%s/routes/%s", c.BaseURL, r.ID))
+	url := fmt.Sprintf("%s/routes/%s", c.BaseURL, r.ID)
+	res, err := c.httpRequest(http.MethodDelete, url, nil, nil)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusNoContent {
-		return fmt.Errorf("bad response")
+		return fmt.Errorf("error deleting route. Bad response response from the API [%d]", res.StatusCode)
 	}
 
 	log.Printf("route [%s] deleted (%d)", r.ID, res.StatusCode)
@@ -118,13 +119,15 @@ func (c *Client) DeleteRoute(r Route) error {
 }
 
 func (c *Client) GetRoutes(s Service) ([]Route, error) {
+	url := fmt.Sprintf("%s/services/%s/routes", c.BaseURL, s.Name)
 	r := Routes{}
-	res, err := c.httpGetRequest(fmt.Sprintf("%s/services/%s/routes", c.BaseURL, s.Name), &r)
+	res, err := c.httpRequest(http.MethodGet, url, nil, &r)
 	if err != nil {
 		return r.Data, err
 	}
+
 	if res.StatusCode != http.StatusOK {
-		return r.Data, fmt.Errorf("bad response")
+		return r.Data, fmt.Errorf("error fetching routes. Bad response response from the API [%d]", res.StatusCode)
 	}
 
 	return r.Data, nil
@@ -138,34 +141,36 @@ func (c *Client) CreateRoutes(s Service) error {
 		if err != nil {
 			return err
 		}
-		res, err := c.httpPostRequest(url, payload)
+		res, err := c.httpRequest(http.MethodPost, url, payload, nil)
 		if err != nil {
 			return err
 		}
 		if res.StatusCode != http.StatusCreated {
-			return fmt.Errorf("bad response")
+			return fmt.Errorf("error creating routes. Bad response response from the API [%d]", res.StatusCode)
 		}
-		// FIXME no route id - 204
-		log.Printf("route [%s] created (%d)", s.Name, res.StatusCode)
 	}
 
+	log.Printf("routes created [%s]", s.Name)
 	return nil
 }
 
-func (c *Client) httpGetRequest(url string, response interface{}) (*http.Response, error) {
-	return c.httpRequest(http.MethodGet, url, nil, response)
-}
+func (c *Client) CreatePlugin(s Service) error {
+	url := fmt.Sprintf("%s/services/%s/plugins", c.BaseURL, s.Name)
 
-func (c *Client) httpPostRequest(url string, payload []byte) (*http.Response, error) {
-	return c.httpRequest(http.MethodPost, url, payload, nil)
-}
+	payload, err := json.Marshal(s.Plugin)
+	if err != nil {
+		return err
+	}
+	res, err := c.httpRequest(http.MethodPost, url, payload, nil)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != http.StatusCreated {
+		return fmt.Errorf("error creating plugin. Bad response response from the API [%d]", res.StatusCode)
+	}
 
-func (c *Client) httpPutRequest(url string, payload []byte) (*http.Response, error) {
-	return c.httpRequest(http.MethodPut, url, payload, nil)
-}
-
-func (c *Client) httpDeleteRequest(url string) (*http.Response, error) {
-	return c.httpRequest(http.MethodDelete, url, nil, nil)
+	log.Printf("plugin created [%s]", s.Name)
+	return nil
 }
 
 func (c *Client) httpRequest(method, url string, payload []byte, response interface{}) (*http.Response, error) {
