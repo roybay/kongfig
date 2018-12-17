@@ -1,15 +1,13 @@
-ARCH?=amd64
+GOARCH?=amd64
+GOOS?=linux
 
 all: test kongfig
 
 kongfig: main.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH) GOARM=6 go build -a -installsuffix cgo -ldflags '-w -s' -o kongfig
-
-server: server.go
-	CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH) GOARM=6 go build -a -installsuffix cgo -ldflags '-w -s' -o server
+	CGO_ENABLED=0 GOOS=$(GOOS) GOARCH=$(GOARCH) GOARM=6 go build -a -installsuffix cgo -ldflags '-w -s' -o kongfig
 
 clean:
-	@rm -f server *.out
+	@rm -f kongfig *.out
 
 ci:
 	@ go test -covermode=atomic -coverprofile=coverage.out -race
