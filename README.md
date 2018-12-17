@@ -5,7 +5,7 @@ Kongfig is a configuration management tool for the Kong API gateway.
 ## Usage
 
 ```bash
-kongfig apply -f config.json --dry-run
+kongfig apply -f examples/config.example.json --dry-run
 ```
 
 ### Available Commands

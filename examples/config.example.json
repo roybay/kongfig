@@ -1,7 +1,7 @@
 {
   "host": "localhost:8001",
   "https": false,
-  "version": "0.13.1",
+  "version": "0.14.1",
   "services": [
     {
       "name": "api-providers",
