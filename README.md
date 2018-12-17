@@ -22,14 +22,18 @@ Use `kongfig [command] --help` for more information about a command.
 
 1. Fork the project
 2. Make your changes
-3. `GOOS=darwin make`
-4. The `kongfig` binary is now available
+3. `make`
+4. The `kongfig` binary is now available to use locally
 
 > **NOTE**: when building in OS X, you'll need to export the `GOOS` env, eg:
 
 ```bash
 GOOS=darwin make
 ```
+
+Additionaly, there's a docker-compose file included for ease of local
+development.
+Simply call `docker-compose up` to get started.
 
 Dependencies are managed using [dep]. Please refer to its documentation if needed.
 
