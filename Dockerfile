@@ -1,4 +1,4 @@
-FROM golang:1.10-slim
+FROM golang:1.11-stretch
 
 WORKDIR /go/src/github.com/pagerinc/kongfig/
 COPY . .
