@@ -1,0 +1,25 @@
+host: localhost:8001
+https: false
+version: "0.14.1"
+services:
+  - name: api
+    url: http://${POD_NAMESPACE}.api-admin.${SVC_DOMAIN}
+
+routes:
+  - name: api-admin-private
+    apply_to: api-admin
+    hosts: ['${POD_NAMESPACE}.api.${DOMAIN_NAME}']
+    paths: ["/getSomething"]
+
+plugins:
+  - name: jwt
+    enabled: true
+    routes: [api]
+    config:
+      claims_to_verify: [exp]
+      uri_param_names: [jwt,token]
+consumers:
+  - username: admin
+    custom_id: admin@user.com
+
+credentials: []
