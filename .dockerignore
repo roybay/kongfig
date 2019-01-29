@@ -1,0 +1,7 @@
+*
+!api
+!cmd
+!vendor
+!main.go
+!Gopkg.lock
+!Gopkg.toml
