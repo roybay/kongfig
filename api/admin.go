@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	yaml "gopkg.in/yaml.v2"
+	yaml "gopkg.in/mikefarah/yaml.v2"
 )
 
 const (
