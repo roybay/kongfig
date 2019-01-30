@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [0.0.2] - 2019-01-30
+### Fixed
+- Empty bool fields should be sent as false in the JSON payload
+
 ## [0.0.1] - 2019-01-29
 ### Added
 - Initial release.
