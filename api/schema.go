@@ -20,10 +20,10 @@ type Route struct {
 	Hosts         []string `yaml:"hosts,omitempty" json:"hosts,omitempty"`
 	Paths         []string `yaml:"paths,omitempty" json:"paths,omitempty"`
 	Methods       []string `yaml:"methods,omitempty" json:"methods,omitempty"`
-	StripPath     bool     `yaml:"strip_path,omitempty" json:"strip_path,omitempty"`
+	StripPath     bool     `yaml:"strip_path,omitempty" json:"strip_path"`
 	Protocols     []string `yaml:"protocols,omitempty" json:"protocols,omitempty"`
 	RegexPriority int      `yaml:"regex_priority,omitempty" json:"regex_priority,omitempty"`
-	PreserveHost  bool     `yaml:"preserve_host,omitempty" json:"preserve_host,omitempty"`
+	PreserveHost  bool     `yaml:"preserve_host,omitempty" json:"preserve_host"`
 }
 
 // Service represents the upstream microservice
