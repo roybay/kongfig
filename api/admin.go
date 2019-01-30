@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"reflect"
 	"time"
 
 	yaml "gopkg.in/mikefarah/yaml.v2"
@@ -83,6 +84,7 @@ func configFromPath(path string) (*Config, error) {
 
 	c := Config{}
 
+	yaml.DefaultMapType = reflect.TypeOf(map[string]interface{}{})
 	if err := yaml.Unmarshal(configData, &c); err != nil {
 		return nil, err
 	}
